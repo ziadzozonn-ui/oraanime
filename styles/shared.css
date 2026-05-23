@@ -1,0 +1,137 @@
+/* OraaSlayer Shared CSS - Common styles across all pages */
+/* This file contains styles shared by home.js, anime.js, watch.js, chat.js, servers.js */
+
+/* ═══ CSS Variables (Shared Theme) ═══ */
+:root {
+  --c1: #0F2854; --c2: #1C4D8D; --c3: #4988C4; --c4: #BDE8F5; --gold: #FFCA28;
+  --text-light: #FFFFFF; --text-dim: rgba(255, 255, 255, 0.82);
+  --bg-card: rgba(15, 40, 84, 0.60); --border-subtle: rgba(189, 232, 245, 0.15);
+  --header-height: clamp(56px, 6.5vw, 72px); --footer-height: clamp(62px, 8vw, 76px);
+  --sidebar-width: clamp(240px, 22vw, 300px); --content-max: 1500px;
+  --page-pad: clamp(0.5rem, 1.4vw, 1.2rem);
+  --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-height: 100vh;
+}
+
+/* ═══ Animated Background (Shared) ═══ */
+.animated-bg {
+  position: fixed; inset: 0; z-index: -2;
+  background: radial-gradient(1100px circle at 15% 15%, rgba(73,136,196,.2), transparent 35%),
+              radial-gradient(900px circle at 85% 10%, rgba(255,202,40,.1), transparent 28%),
+              linear-gradient(160deg, var(--c1) 0%, #0a1a3a 40%, var(--c2) 70%, #0d2248 100%);
+}
+
+.pixel-container {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  pointer-events: none; display: none;
+}
+
+@media (min-width: 768px) {
+  .pixel-container { display: block; }
+  .animated-bg {
+    background: radial-gradient(1100px circle at 15% 15%, rgba(73,136,196,.2), transparent 35%),
+                radial-gradient(900px circle at 85% 10%, rgba(255,202,40,.1), transparent 28%),
+                linear-gradient(-45deg, var(--c1), var(--c2), var(--c3), var(--c4));
+    background-size: 400% 400%;
+    animation: gradientFlow 25s ease infinite;
+  }
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.pixel {
+  position: absolute; background: rgba(189,232,245,.1);
+  bottom: -150px; border-radius: 4px;
+  animation: floatUp 30s linear infinite;
+  will-change: transform;
+}
+
+.pixel:nth-child(1) { left:10%; width:40px; height:40px; animation-delay:0s; opacity:.3; }
+.pixel:nth-child(2) { left:40%; width:25px; height:25px; animation-delay:8s; }
+.pixel:nth-child(3) { left:70%; width:35px; height:35px; animation-delay:15s; opacity:.25; }
+
+@keyframes floatUp {
+  0% { transform: translate3d(0,0,0) rotate(0deg); opacity: 0; }
+  10% { opacity: .3; }
+  90% { opacity: .3; }
+  100% { transform: translate3d(0,-1100px,0) rotate(360deg); opacity: 0; }
+}
+
+/* ═══ Main Header (Shared) ═══ */
+.main-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: calc(var(--header-height) + var(--safe-top));
+  padding-top: var(--safe-top);
+  background: rgba(10,26,58,0.55);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .6rem; padding-inline: var(--page-pad); z-index: 1000;
+  contain: layout paint style;
+  transition: background .4s ease, box-shadow .4s ease;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.main-header--scrolled {
+  background: rgba(8,20,48,0.92);
+  box-shadow: 0 8px 32px rgba(0,0,0,.55);
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+/* ═══ Bottom Navigation (Shared) ═══ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(var(--footer-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(10,28,60,.65);
+  backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+  display: flex; align-items: center; justify-content: space-around;
+  z-index: 999;
+  border-top: 1px solid rgba(189,232,245,.22);
+  box-shadow: 0 -10px 30px rgba(0,0,0,.35);
+}
+
+@media (min-width: 1024px) { .bottom-nav { display: none; } }
+
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; padding: 6px 0; text-decoration: none;
+  color: rgba(255,255,255,.45); transition: all .3s; position: relative;
+}
+
+.nav-item.active { color: var(--gold); }
+.nav-item.active::before {
+  content: ''; position: absolute; top: -1px;
+  width: 28px; height: 3px; background: var(--gold);
+  border-radius: 0 0 5px 5px; box-shadow: 0 0 14px var(--gold);
+}
+
+.nav-icon-wrap { width: 44px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.nav-item svg { width: 24px; height: 24px; transition: all .2s; stroke-width: 1.8; }
+.nav-item.active svg { filter: drop-shadow(0 0 10px var(--gold)); transform: scale(1.12); }
+.nav-label { font-size: .62rem; font-weight: 700; }
+
+/* ═══ Icon Button (Shared) ═══ */
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--c4); transition: all .2s; flex-shrink: 0;
+}
+.icon-btn:active { transform: scale(.93); background: rgba(255,255,255,.12); }
+.icon-btn:hover { background: rgba(255,255,255,.1); }
+.icon-btn svg { width: 22px; height: 22px; stroke-width: 2; }
+
+/* ═══ Focus Visible (Accessibility) ═══ */
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ═══ Scroll Performance ═══ */
+body.is-scrolling .anime-card .card-glow,
+body.is-scrolling .anime-card:hover .card-glow { display: none; }

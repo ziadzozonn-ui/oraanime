@@ -1,0 +1,51 @@
+{
+  "id": "Jigokuraku_Season_2",
+  "title": "Jigokuraku 2nd Season",
+  "description": "الموسم الثاني من أنمي جحيم الجنة (Hell's Paradise)",
+  "episodes": [
+    {
+      "epNum": 1,
+      "title": "الحلقة الأولى",
+      "servers": [
+        {
+          "name": "سيرفر Google Drive",
+          "quality": "1080p",
+          "url": "https://drive.google.com/file/d/1F3zlHChzmAlMInCuprI1K_9fdgRKgDUB/preview"
+        }
+      ]
+    },
+    {
+      "epNum": 2,
+      "title": "الحلقة الثانية",
+      "servers": [
+        {
+          "name": "سيرفر Google Drive",
+          "quality": "1080p",
+          "url": "https://drive.google.com/file/d/10tpClKqBDwswCwQKSQpXoS5NPgV4b0pj/preview"
+        }
+      ]
+    },
+    {
+      "epNum": 3,
+      "title": "الحلقة الثالثة",
+      "servers": [
+        {
+          "name": "سيرفر Google Drive",
+          "quality": "1080p",
+          "url": "https://drive.google.com/file/d/1dmQ09KvtBitiBodVSePAS4ILG0W67Fnd/preview"
+        }
+      ]
+    },
+    {
+      "epNum": 4,
+      "title": "الحلقة الرابعة",
+      "servers": [
+        {
+          "name": "سيرفر Google Drive",
+          "quality": "1080p",
+          "url": "https://drive.google.com/file/d/1-BYwvCxXkLNjBDfX8JV39O8QAD94Kz5Q/preview"
+        }
+      ]
+    }
+  ]
+}

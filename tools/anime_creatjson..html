@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DevTools | مولّد حلقات الأنمي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c1:#0B1A3A;--c2:#152D5A;--c3:#3A7BD5;--c4:#D6EAF8;--c-deep:#06122A;
+  --gold:#FFC107;--gold-soft:rgba(255,193,7,.12);--gold-glow:rgba(255,193,7,.3);
+  --red:#FF4757;--green:#2ED573;
+  --bg:var(--c1);--surface:rgba(12,24,48,.82);--glass:rgba(10,20,40,.65);
+  --text:#F8FAFC;--text-secondary:rgba(214,234,248,.8);
+  --text-dim:rgba(255,255,255,.75);--text-muted:rgba(189,215,238,.5);
+  --border:rgba(189,215,238,.12);--border-gold:rgba(255,193,7,.2);
+  --r-sm:10px;--r-md:14px;--r-lg:18px;--r-xl:24px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--smooth:cubic-bezier(.4,0,.2,1);--out:cubic-bezier(.16,1,.3,1);
+  --fast:160ms;--base:260ms;
+  --sh-sm:0 4px 12px rgba(0,0,0,.25);--sh-md:0 10px 30px rgba(0,0,0,.4);
+}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;min-height:100dvh;line-height:1.6;overflow-x:hidden;touch-action:pan-y}
+.container{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.header{text-align:center;margin-bottom:28px}
+.header h1{font-size:1.4rem;font-weight:900;color:var(--gold);margin-bottom:6px}
+.header p{font-size:.82rem;color:var(--text-muted)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:18px;backdrop-filter:blur(12px);box-shadow:var(--sh-sm);transition:all var(--base)}
+.card:hover{border-color:rgba(255,255,255,.1);box-shadow:var(--sh-md)}
+.card__title{font-size:.95rem;font-weight:800;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.input-wrap{display:flex;flex-direction:column;gap:6px}
+.input-wrap label{font-size:.72rem;font-weight:700;color:var(--text-dim)}
+.input-field{width:100%;padding:11px 14px;border-radius:var(--r-md);background:rgba(0,0,0,.25);border:1.5px solid var(--border);color:var(--text);font-family:'Cairo',sans-serif;font-size:.88rem;transition:all var(--fast)}
+.input-field:focus{outline:none;border-color:rgba(255,193,7,.35);background:rgba(0,0,0,.35);box-shadow:0 0 0 3px rgba(255,193,7,.06)}
+.input-field::placeholder{color:var(--text-muted)}
+
+.btn{padding:12px 18px;border-radius:var(--r-md);border:none;font-family:'Cairo',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all var(--base)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--gold),#d97706);color:#000}
+.btn-primary:hover{filter:brightness(1.1);box-shadow:0 4px 14px rgba(255,193,7,.3)}
+.btn-secondary{background:var(--glass);border:1px solid var(--border);color:var(--text-dim)}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+
+.episodes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:16px}
+.ep-card{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px;transition:all var(--fast)}
+.ep-card:hover{border-color:rgba(255,255,255,.15);background:rgba(0,0,0,.28)}
+.ep-label{font-size:.78rem;font-weight:800;color:var(--c4);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.ep-badge{font-size:.6rem;background:var(--gold-soft);color:var(--gold);padding:2px 8px;border-radius:20px;font-weight:700}
+.ep-input{width:100%;padding:10px 12px;border-radius:var(--r-sm);background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem;direction:ltr;text-align:left;transition:all var(--fast)}
+.ep-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(255,193,7,.1)}
+.ep-input::placeholder{color:rgba(255,255,255,.3)}
+
+.output-area{margin-top:20px;display:none}
+.output-area.show{display:block}
+.output-box{background:rgba(0,0,0,.35);border:1px dashed var(--border);border-radius:var(--r-md);padding:14px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text-dim);direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-all;max-height:320px;overflow-y:auto;margin-bottom:12px}
+.output-actions{display:flex;gap:8px;justify-content:flex-end}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);color:var(--gold);padding:10px 20px;border-radius:28px;font-size:.82rem;font-weight:700;z-index:9999;opacity:0;transition:all .3s var(--spring);pointer-events:none;display:flex;align-items:center;gap:8px;box-shadow:var(--sh-md)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{color:var(--green);border-color:rgba(46,213,115,.3)}
+
+.empty-hint{text-align:center;padding:30px;color:var(--text-muted);font-size:.85rem;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.06);border-radius:var(--r-md);margin-top:16px}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .episodes-grid{grid-template-columns:1fr}
+  .container{padding:16px 10px 50px}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🎬 مولّد حلقات الأنمي</h1>
+    <p>أدخل الروابط واحصل على كود JSON جاهز ومنسق فوراً</p>
+  </div>
+
+  <div class="card">
+    <div class="card__title">⚙️ إعدادات الأنمي</div>
+    <div class="form-grid">
+      <div class="input-wrap"><label>معرف الأنمي (ID)</label><input type="text" id="animeId" class="input-field" placeholder="مثال: 166613"></div>
+      <div class="input-wrap"><label>عنوان الأنمي</label><input type="text" id="animeTitle" class="input-field" placeholder="مثال: Jigokuraku Season 2"></div>
+      <div class="input-wrap"><label>عدد الحلقات</label><input type="number" id="epCount" class="input-field" placeholder="14" min="1" max="200"></div>
+      <div class="input-wrap"><label>اسم السيرفر الافتراضي</label><input type="text" id="serverName" class="input-field" placeholder="سيرفر Google Drive"></div>
+      <div class="input-wrap"><label>الجودة الافتراضية</label><input type="text" id="quality" class="input-field" placeholder="1080p"></div>
+    </div>
+    <button class="btn btn-primary" id="buildBtn" style="width:100%">🔨 إنشاء حقول الحلقات</button>
+  </div>
+
+  <div id="episodesContainer" class="card" style="display:none">
+    <div class="card__title">📥 روابط الحلقات</div>
+    <div id="episodesGrid" class="episodes-grid"></div>
+    <button class="btn btn-primary" id="generateBtn" style="width:100%;margin-top:16px">✨ توليد كود JSON</button>
+  </div>
+
+  <div id="outputArea" class="output-area">
+    <div class="card">
+      <div class="card__title">📄 الكود النهائي</div>
+      <div id="outputBox" class="output-box"></div>
+      <div class="output-actions">
+        <button class="btn btn-secondary" id="copyBtn">📋 نسخ الكود</button>
+        <button class="btn btn-secondary" id="clearBtn">🗑️ مسح</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="emptyHint" class="empty-hint">ابدأ بإعدادات الأنمي ثم اضغط "إنشاء حقول الحلقات"</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const toastEl = $('toast');
+let toastTimer;
+
+function showToast(msg, type = '') {
+  toastEl.textContent = msg;
+  toastEl.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.className = 'toast', 2600);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+$('buildBtn').addEventListener('click', () => {
+  const count = parseInt($('epCount').value);
+  if (!count || count < 1) { showToast('⚠️ أدخل عدد حلقات صحيح', ''); return; }
+  
+  const grid = $('episodesGrid');
+  grid.innerHTML = '';
+  
+  for (let i = 1; i <= count; i++) {
+    const card = document.createElement('div');
+    card.className = 'ep-card';
+    card.innerHTML = `
+      <div class="ep-label">
+        <span>الحلقة ${i}</span>
+        <span class="ep-badge">EP ${i}</span>
+      </div>
+      <input type="url" class="ep-input" data-ep="${i}" placeholder="https://drive.google.com/file/.../preview" autocomplete="off">
+    `;
+    grid.appendChild(card);
+  }
+  
+  $('episodesContainer').style.display = 'block';
+  $('emptyHint').style.display = 'none';
+  $('outputArea').classList.remove('show');
+  showToast(`✅ تم إنشاء ${count} حقل بنجاح`, 'success');
+});
+
+$('generateBtn').addEventListener('click', () => {
+  const id = $('animeId').value.trim();
+  const title = $('animeTitle').value.trim();
+  const server = $('serverName').value.trim() || 'سيرفر أساسي';
+  const quality = $('quality').value.trim() || '1080p';
+  
+  if (!id || !title) { showToast('⚠️ أكمل معرف وعنوان الأنمي', ''); return; }
+  
+  const inputs = document.querySelectorAll('.ep-input');
+  const episodes = [];
+  let emptyCount = 0;
+  
+  inputs.forEach(inp => {
+    const num = parseInt(inp.dataset.ep);
+    const url = inp.value.trim();
+    if (!url) { emptyCount++; return; }
+    episodes.push({
+      epNum: num,
+      title: `الحلقة ${num}`,
+      servers: [{ name: server, quality: quality, url: url }]
+    });
+  });
+  
+  if (episodes.length === 0) { showToast('⚠️ أدخل رابط حلقة واحد على الأقل', ''); return; }
+  if (emptyCount > 0) showToast(`⚠️ تم تخطي ${emptyCount} حقل فارغ`, '');
+  
+  const payload = { id, title, episodes };
+  const json = JSON.stringify(payload, null, 2);
+  
+  $('outputBox').textContent = json;
+  $('outputArea').classList.add('show');
+  showToast(`✅ تم توليد الكود (${episodes.length} حلقة)`, 'success');
+});
+
+$('copyBtn').addEventListener('click', () => {
+  const text = $('outputBox').textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ تم نسخ الكود للحافظة', 'success');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('✅ تم النسخ', 'success'); }
+    catch { showToast('❌ فشل النسخ', ''); }
+    document.body.removeChild(ta);
+  });
+});
+
+$('clearBtn').addEventListener('click', () => {
+  $('outputBox').textContent = '';
+  $('outputArea').classList.remove('show');
+  showToast('🗑️ تم مسح المخرجات', '');
+});
+</script>
+</body>
+</html>

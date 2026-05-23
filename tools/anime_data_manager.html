@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DevTools | Anime Data Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0B1120;
+  --surface: #111827;
+  --surface2: #1e293b;
+  --surface3: #273549;
+  --border: rgba(56, 189, 248, 0.12);
+  --border-hover: rgba(56, 189, 248, 0.25);
+  --accent: #38bdf8;
+  --accent2: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --purple: #a78bfa;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body {
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  direction:rtl;
+  min-height:100dvh;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ── Login Overlay ── */
+.login-overlay {
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(11,17,32,0.96);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.login-box {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:36px 28px;
+  width:100%;max-width:380px;
+  text-align:center;
+  box-shadow:var(--shadow-lg);
+}
+.login-icon {
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(56,189,248,0.12),rgba(251,191,36,0.08));
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin:0 auto 18px;color:var(--accent);
+}
+.login-box h2 {font-size:1.15rem;font-weight:800;margin-bottom:6px}
+.login-box p {font-size:0.78rem;color:var(--text-muted);margin-bottom:22px}
+.login-input {
+  width:100%;padding:13px 14px;border-radius:var(--radius-sm);
+  background:rgba(0,0,0,0.35);border:1.5px solid var(--border);
+  color:var(--accent2);font-family:'JetBrains Mono',monospace;
+  font-size:0.92rem;text-align:center;letter-spacing:2px;
+  margin-bottom:14px;transition:0.2s;
+}
+.login-input:focus {outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.12)}
+.login-input::placeholder {color:var(--text-muted);letter-spacing:0}
+
+/* ── Buttons ── */
+.btn {
+  padding:11px 18px;border-radius:var(--radius-sm);border:none;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:0.85rem;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  transition:all 0.2s;white-space:nowrap;position:relative;overflow:hidden;
+}
+.btn:active {transform:scale(0.97)}
+.btn-primary {background:linear-gradient(135deg,var(--accent),#0ea5e9);color:#000;font-weight:800}
+.btn-primary:hover {filter:brightness(1.1);box-shadow:0 4px 14px rgba(56,189,248,0.3)}
+.btn-secondary {background:var(--surface2);border:1px solid var(--border);color:var(--text-dim)}
+.btn-secondary:hover {border-color:var(--accent);color:var(--accent)}
+.btn-gold {background:linear-gradient(135deg,var(--accent2),#d97706);color:#000;font-weight:800}
+.btn-gold:hover {filter:brightness(1.1);box-shadow:0 4px 14px rgba(251,191,36,0.3)}
+.btn-danger {background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:var(--red)}
+.btn-danger:hover {background:rgba(248,113,113,0.22)}
+.btn-sm {padding:8px 12px;font-size:0.76rem;border-radius:8px}
+.btn:disabled {opacity:0.5;cursor:not-allowed;transform:none !important}
+
+/* ── Header ── */
+.header {
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);
+}
+.header-icon {
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(251,191,36,0.06));
+  border:1px solid var(--border);display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0;color:var(--accent);
+}
+.header h1 {font-size:0.92rem;font-weight:800;color:var(--text)}
+.header p {font-size:0.62rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.header-badges {margin-right:auto;display:flex;gap:6px}
+.badge {
+  padding:3px 9px;border-radius:20px;font-size:0.58rem;
+  font-weight:700;font-family:'JetBrains Mono',monospace;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.badge-dev {background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.badge-sec {background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:var(--green)}
+
+/* ── Container & Stats ── */
+.container {max-width:1150px;margin:0 auto;padding:20px 16px 70px}
+.stats-row {
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;
+}
+.stat-card {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 10px;text-align:center;
+  transition:0.2s;position:relative;overflow:hidden;
+}
+.stat-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0.6;
+}
+.stat-card:hover {border-color:var(--border-hover);transform:translateY(-2px)}
+.stat-card .num {
+  font-size:1.45rem;font-weight:900;font-family:'JetBrains Mono',monospace;
+  line-height:1;margin-bottom:4px;
+}
+.stat-card .lbl {font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.stat-blue .num {color:var(--accent)}
+.stat-green .num {color:var(--green)}
+.stat-red .num {color:var(--red)}
+.stat-gold .num {color:var(--accent2)}
+
+/* ── Search Box ── */
+.search-box {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:20px;
+}
+.search-label {
+  font-size:0.78rem;font-weight:800;color:var(--accent);
+  margin-bottom:10px;display:flex;align-items:center;gap:7px;
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+.search-row {display:flex;gap:8px;margin-bottom:10px}
+.search-row input {
+  flex:1;padding:11px 14px;border-radius:var(--radius-sm);
+  background:rgba(0,0,0,0.28);border:1.5px solid var(--border);
+  color:var(--text);font-family:'Cairo',sans-serif;font-size:0.92rem;
+  font-weight:600;transition:0.2s;
+}
+.search-row input:focus {outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1)}
+.search-row input::placeholder {color:var(--text-muted);font-weight:400}
+.id-input {flex:0 0 150px !important;color:var(--accent2) !important;font-family:'JetBrains Mono',monospace !important}
+.id-input::placeholder {color:rgba(251,191,36,0.4) !important}
+.divider {
+  display:flex;align-items:center;gap:10px;margin:12px 0;
+  font-size:0.68rem;color:var(--text-muted);font-weight:700;
+}
+.divider::before,.divider::after {
+  content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);
+}
+.recent-tags {display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.recent-tag {
+  padding:4px 10px;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);border-radius:20px;
+  font-size:0.72rem;color:var(--text-muted);cursor:pointer;
+  transition:0.2s;font-weight:600;
+}
+.recent-tag:hover {background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.2);color:var(--accent)}
+
+/* ── Toolbar & Bulk ── */
+.toolbar {display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.bulk-box {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;margin-bottom:16px;display:none;
+}
+.bulk-box.show {display:block}
+.bulk-input {
+  width:100%;min-height:90px;padding:12px;border-radius:var(--radius-sm);
+  background:rgba(0,0,0,0.28);border:1.5px solid var(--border);
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.82rem;
+  resize:vertical;margin-bottom:10px;
+}
+.bulk-input:focus {outline:none;border-color:var(--accent)}
+
+/* ── Table ── */
+.table-wrap {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.table-wrap table {width:100%;border-collapse:collapse;font-size:0.82rem}
+.table-wrap th {
+  background:var(--surface2);padding:12px 14px;text-align:right;
+  font-weight:800;font-size:0.72rem;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:0.4px;
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;
+}
+.table-wrap td {
+  padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.03);
+  vertical-align:middle;
+}
+.table-wrap tr:hover td {background:rgba(255,255,255,0.02)}
+.table-wrap tr:last-child td {border-bottom:none}
+.td-poster {width:48px}
+.td-poster img {
+  width:42px;height:60px;border-radius:6px;object-fit:cover;
+  background:var(--surface2);border:1px solid rgba(255,255,255,0.08);
+}
+.td-title {font-weight:700;color:var(--text);max-width:200px}
+.td-title small {display:block;color:var(--text-muted);font-size:0.68rem;font-weight:400;margin-top:2px}
+.td-id {
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.95rem;
+  color:var(--accent2);letter-spacing:0.5px;
+}
+.td-meta {font-size:0.72rem;color:var(--text-dim);white-space:nowrap}
+.td-meta span {display:inline-block;margin-left:6px}
+.td-meta i {font-size:0.6rem;margin-left:2px;opacity:0.7}
+.status-badge {
+  display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:20px;font-size:0.68rem;font-weight:700;
+}
+.status-found {background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:var(--green)}
+.status-missing {background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.status-check {background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--text-muted)}
+.actions-cell {white-space:nowrap}
+.actions-cell .btn-sm {margin-left:3px}
+
+/* ── Export & Empty ── */
+.export-box {
+  background:var(--surface);border:1px dashed var(--border);
+  border-radius:var(--radius);padding:18px;margin-bottom:16px;display:none;
+}
+.export-box.show {display:block}
+.export-box pre {
+  background:rgba(0,0,0,0.35);border-radius:var(--radius-sm);
+  padding:12px;font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;color:var(--text-dim);overflow-x:auto;
+  direction:ltr;text-align:left;white-space:pre-wrap;
+  word-break:break-all;max-height:220px;overflow-y:auto;
+}
+.export-actions {display:flex;gap:6px;margin-top:12px}
+.empty-state {text-align:center;padding:45px 16px;color:var(--text-muted)}
+.empty-state .icon {font-size:2.2rem;margin-bottom:10px;opacity:0.5;color:var(--accent)}
+.empty-state p {font-size:0.88rem;font-weight:600}
+.empty-state small {display:block;margin-top:5px;font-size:0.75rem;opacity:0.7}
+
+/* ── Toast & Spinner ── */
+#toast {
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface);border:1px solid var(--border);color:var(--accent);
+  padding:10px 20px;border-radius:28px;font-size:0.82rem;font-weight:700;
+  z-index:9999;opacity:0;transition:all 0.3s cubic-bezier(.4,0,.2,1);pointer-events:none;
+  display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);
+}
+#toast.show {transform:translateX(-50%) translateY(0);opacity:1}
+#toast.success {color:var(--green);border-color:rgba(52,211,153,0.3)}
+#toast.error {color:var(--red);border-color:rgba(248,113,113,0.3)}
+#toast.gold {color:var(--accent2);border-color:rgba(251,191,36,0.3)}
+.spin {display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.2);border-top-color:currentColor;border-radius:50%;animation:spin 0.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Scrollbar & Responsive ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:rgba(56,189,248,0.35)}
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .search-row{flex-direction:column}
+  .id-input{flex:1 !important;width:100%}
+  .table-wrap{overflow-x:auto}
+  .table-wrap table{min-width:680px}
+  .toolbar{justify-content:center}
+  .header{flex-wrap:wrap;gap:10px}
+  .header-badges{margin-right:0;margin-top:4px}
+}
+@media(max-width:480px){
+  .container{padding:14px 10px 50px}
+  .search-box,.bulk-box,.export-box{padding:14px}
+  .btn{padding:9px 12px;font-size:0.78rem}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-icon"><i class="fa-solid fa-lock"></i></div>
+    <h2>وضع المطور</h2>
+    <p>أدخل مفتاح الدخول للوصول إلى أدوات إدارة البيانات</p>
+    <input type="password" class="login-input" id="devKeyInput" placeholder="Developer Key" maxlength="64" autocomplete="off">
+    <button class="btn btn-primary" style="width:100%" id="loginBtn" onclick="verifyKey()">
+      <i class="fa-solid fa-unlock"></i> دخول
+    </button>
+    <p style="margin-top:14px;font-size:0.68rem;color:var(--text-muted)">
+      المفتاح الافتراضي: <span style="color:var(--accent);font-family:monospace">dev_anime_2024</span>
+    </p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+  <div>
+    <h1>Anime Data File Manager</h1>
+    <p>/devtools/anime_data_manager.html</p>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-sec"><i class="fa-solid fa-shield-halved"></i> SECURE</span>
+    <span class="badge badge-dev"><i class="fa-solid fa-code"></i> DEV</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsBar" style="display:none">
+    <div class="stat-card stat-blue"><div class="num" id="stTotal">0</div><div class="lbl">الكل</div></div>
+    <div class="stat-card stat-green"><div class="num" id="stFound">0</div><div class="lbl">موجود</div></div>
+    <div class="stat-card stat-red"><div class="num" id="stMissing">0</div><div class="lbl">مفقود</div></div>
+    <div class="stat-card stat-gold"><div class="num" id="stCov">0%</div><div class="lbl">التغطية</div></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-box">
+    <div class="search-label"><i class="fa-solid fa-magnifying-glass"></i> بحث بالاسم</div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="اكتب اسم الأنمي..." autocomplete="off">
+      <button class="btn btn-primary" id="searchBtn" onclick="searchName()">
+        <i class="fa-solid fa-search"></i> بحث
+      </button>
+    </div>
+    <div class="recent-tags" id="recentTags"></div>
+
+    <div class="divider">أو</div>
+
+    <div class="search-label"><i class="fa-solid fa-hashtag"></i> بحث بالـ ID</div>
+    <div class="search-row">
+      <input type="number" class="id-input" id="idInput" placeholder="مثال: 166613" min="1">
+      <button class="btn btn-gold" id="idBtn" onclick="searchId()">
+        <i class="fa-solid fa-bolt"></i> جلب
+      </button>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar" id="toolbar" style="display:none">
+    <button class="btn btn-secondary btn-sm" onclick="toggleBulk()"><i class="fa-solid fa-list-check"></i> فحص مجموعة</button>
+    <button class="btn btn-secondary btn-sm" onclick="exportMissing()"><i class="fa-solid fa-file-export"></i> تصدير مفقودات</button>
+    <button class="btn btn-secondary btn-sm" onclick="clearAll()"><i class="fa-solid fa-eraser"></i> مسح</button>
+    <button class="btn btn-danger btn-sm" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+  </div>
+
+  <!-- BULK -->
+  <div class="bulk-box" id="bulkBox">
+    <div class="search-label"><i class="fa-solid fa-list-ol"></i> فحص مجموعة IDs</div>
+    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">أدخل أرقام مفصولة بسطر أو فاصلة</p>
+    <textarea class="bulk-input" id="bulkInput" placeholder="166613&#10;172463&#10;151807"></textarea>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-primary btn-sm" id="bulkBtn" onclick="runBulk()"><i class="fa-solid fa-play"></i> بدء</button>
+      <button class="btn btn-secondary btn-sm" onclick="toggleBulk()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="export-box" id="exportBox">
+    <div class="search-label"><i class="fa-solid fa-file-code"></i> الملفات المفقودة</div>
+    <pre id="exportPre"></pre>
+    <div class="export-actions">
+      <button class="btn btn-gold btn-sm" onclick="copyExport()"><i class="fa-regular fa-copy"></i> نسخ الكل</button>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('exportBox').classList.remove('show')"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="resultsArea">
+    <div class="empty-state">
+      <div class="icon"><i class="fa-solid fa-database"></i></div>
+      <p>ابحث عن أنمي لعرض البيانات والتحقق من الملفات</p>
+      <small>يتم فحص /anime/data/{id}.json تلقائياً</small>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const ANILIST = 'https://graphql.anilist.co';
+const DEV_KEY = 'dev_anime_2024';
+const AUTH_KEY = 'dev_auth_v2';
+const RECENT_KEY = 'recent_v2';
+const DATA_PATH = '/anime/data/'; // ✅ المسار الصحيح المستخدم في المنصة
+
+let stats = {total:0, found:0, missing:0};
+let results = [];
+let searchTimer = null;
+
+// ── AUTH ──
+function verifyKey() {
+  const v = document.getElementById('devKeyInput').value.trim();
+  const btn = document.getElementById('loginBtn');
+  if (!v) return;
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> تحقق...';
+  setTimeout(() => {
+    if (v === DEV_KEY) {
+      localStorage.setItem(AUTH_KEY, '1');
+      document.getElementById('loginOverlay').style.display = 'none';
+      toast('🔓 تم الدخول بنجاح', 'success');
+      loadRecent();
+    } else {
+      toast('❌ مفتاح خاطئ', 'error');
+      document.getElementById('devKeyInput').value = '';
+      document.getElementById('devKeyInput').focus();
+    }
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-unlock"></i> دخول';
+  }, 400);
+}
+function logout() { localStorage.removeItem(AUTH_KEY); location.reload(); }
+function checkAuth() {
+  if (localStorage.getItem(AUTH_KEY) === '1') {
+    document.getElementById('loginOverlay').style.display = 'none';
+    loadRecent();
+  }
+}
+
+// ── RECENT ──
+function saveRecent(q) {
+  if (!q) return;
+  let r = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+  r = r.filter(x => x !== q); r.unshift(q);
+  if (r.length > 10) r = r.slice(0, 10);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(r));
+  loadRecent();
+}
+function loadRecent() {
+  const box = document.getElementById('recentTags');
+  const r = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+  box.innerHTML = r.length ? r.map(q => `<span class="recent-tag" onclick="setSearch('${esc(q)}')">${esc(q)}</span>`).join('') : '';
+}
+function setSearch(q) { document.getElementById('searchInput').value = q; searchName(); }
+
+// ── SEARCH NAME (Debounce) ──
+async function searchName() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) { toast('أدخل اسم للبحث', 'gold'); return; }
+  saveRecent(q);
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> بحث...';
+
+  const query = `query($q:String){Page(perPage:20){media(search:$q,type:ANIME){id title{userPreferred native} coverImage{extraLarge large} episodes format status averageScore seasonYear genres}}}`;
+  try {
+    const res = await fetch(ANILIST, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query,variables:{q}})});
+    if (!res.ok) throw new Error('Network');
+    const data = await res.json();
+    renderTable(data?.data?.Page?.media || []);
+  } catch(e) { showErr('فشل الاتصال بـ AniList'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-search"></i> بحث';
+}
+
+// ── SEARCH ID ──
+async function searchId() {
+  const id = document.getElementById('idInput').value.trim();
+  if (!id || isNaN(id)) { toast('أدخل ID صحيح', 'gold'); return; }
+  const btn = document.getElementById('idBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> جلب...';
+
+  const query = `query($id:Int){Media(id:$id,type:ANIME){id title{userPreferred native} coverImage{extraLarge large} episodes format status averageScore seasonYear genres}}`;
+  try {
+    const res = await fetch(ANILIST, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query,variables:{id:parseInt(id)}})});
+    if (!res.ok) throw new Error('Network');
+    const data = await res.json();
+    const item = data?.data?.Media;
+    if (!item) throw new Error('not found');
+    renderTable([item]);
+  } catch(e) { showErr('لم يتم العثور على الأنمي'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i> جلب';
+}
+
+// ── BULK ──
+function toggleBulk() {
+  const box = document.getElementById('bulkBox');
+  box.classList.toggle('show');
+}
+async function runBulk() {
+  const raw = document.getElementById('bulkInput').value.trim();
+  if (!raw) return;
+  const ids = raw.split(/[\n,]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  if (!ids.length) { toast('لا توجد أرقام صالحة', 'gold'); return; }
+  toast(`⏳ فحص ${ids.length} أنمي...`, 'gold');
+
+  const btn = document.getElementById('bulkBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> جاري...';
+
+  const query = `query($ids:[Int]){Page(perPage:50){media(id_in:$ids,type:ANIME){id title{userPreferred native} coverImage{extraLarge large} episodes format status averageScore seasonYear genres}}}`;
+  try {
+    const res = await fetch(ANILIST, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query,variables:{ids}})});
+    if (!res.ok) throw new Error('Network');
+    const data = await res.json();
+    const items = data?.data?.Page?.media || [];
+    renderTable(items);
+    const foundIds = new Set(items.map(i => i.id));
+    const missing = ids.filter(id => !foundIds.has(id));
+    if (missing.length) toast(`${missing.length} رقم غير موجود في AniList`, 'error');
+  } catch(e) { showErr('فشل الفحص الجماعي'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-play"></i> بدء';
+}
+
+// ── RENDER TABLE ──
+async function renderTable(items) {
+  if (!items.length) {
+    document.getElementById('resultsArea').innerHTML = `<div class="empty-state"><div class="icon"><i class="fa-regular fa-face-frown"></i></div><p>لا توجد نتائج</p></div>`;
+    hideStats(); return;
+  }
+
+  results = items;
+  stats = {total:items.length, found:0, missing:0};
+  updateStats();
+  document.getElementById('statsBar').style.display = 'grid';
+  document.getElementById('toolbar').style.display = 'flex';
+
+  const statusMap = {FINISHED:'منتهي',RELEASING:'يعرض',NOT_YET_RELEASED:'قريباً',CANCELLED:'ملغي'};
+  const formatMap = {TV:'TV',MOVIE:'فيلم',OVA:'OVA',ONA:'ONA',SPECIAL:'خاص',MUSIC:'موسيقي'};
+
+  let html = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:48px"></th>
+            <th>العنوان</th>
+            <th style="width:85px">ID</th>
+            <th>معلومات</th>
+            <th style="width:130px">الملف</th>
+            <th style="width:190px">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+  `;
+
+  items.forEach(item => {
+    const title = item.title?.userPreferred || item.title?.native || 'Unknown';
+    const img = item.coverImage?.extraLarge || item.coverImage?.large || '';
+    const year = item.seasonYear || '-';
+    const eps = item.episodes || '?';
+    const score = item.averageScore ? (item.averageScore/10).toFixed(1) : '-';
+    const status = statusMap[item.status] || item.status || '-';
+    const format = formatMap[item.format] || item.format || '-';
+
+    html += `
+      <tr id="row-${item.id}">
+        <td class="td-poster"><img src="${img}" loading="lazy" onerror="this.src='https://via.placeholder.com/42x60/1e293b/38bdf8?text=${item.id}'" alt=""></td>
+        <td class="td-title">${esc(title)}<small>${esc(item.title?.native || '')}</small></td>
+        <td class="td-id">${item.id}</td>
+        <td class="td-meta">
+          <span><i class="fa-regular fa-calendar"></i> ${year}</span>
+          <span><i class="fa-solid fa-film"></i> ${eps}</span>
+          <span><i class="fa-solid fa-star"></i> ${score}</span>
+          <span><i class="fa-solid fa-tv"></i> ${format}</span>
+          <span><i class="fa-solid fa-signal"></i> ${status}</span>
+        </td>
+        <td>
+          <span class="status-badge status-check" id="status-${item.id}">
+            <span class="spin" style="width:9px;height:9px;border-width:1.5px"></span> فحص...
+          </span>
+        </td>
+        <td class="actions-cell">
+          <button class="btn btn-secondary btn-sm" onclick="copyText('${item.id}')" title="نسخ ID"><i class="fa-regular fa-copy"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="copyText('${item.id}.json')" title="نسخ اسم الملف" style="color:var(--accent2)"><i class="fa-solid fa-file-code"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="copyTemplate(${item.id},'${esc(title)}')" title="قالب JSON"><i class="fa-solid fa-file-circle-plus"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="openAnime(${item.id})" title="عرض"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('resultsArea').innerHTML = html;
+
+  // ✅ Concurrent file check (max 3)
+  const pool = [];
+  for (let i = 0; i < items.length; i++) {
+    pool.push(checkFile(items[i].id));
+    if (pool.length >= 3) { await Promise.race(pool); pool.splice(pool.findIndex(p => p.resolved), 1); }
+  }
+  await Promise.all(pool);
+}
+
+// ── CHECK FILE ──
+async function checkFile(id) {
+  const el = document.getElementById(`status-${id}`);
+  const filePath = `${DATA_PATH}${id}.json`;
+  try {
+    const res = await fetch(filePath, {method:'HEAD', cache:'no-store'});
+    if (res.ok) {
+      let epCount = '?';
+      try {
+        const d = await fetch(filePath, {cache:'no-store'}).then(r => r.json());
+        epCount = d?.episodes?.length ?? '?';
+      } catch(e) {}
+      el.className = 'status-badge status-found';
+      el.innerHTML = `<i class="fa-solid fa-check"></i> موجود (${epCount})`;
+      stats.found++;
+    } else throw new Error('not found');
+  } catch(e) {
+    el.className = 'status-badge status-missing';
+    el.innerHTML = `<i class="fa-solid fa-xmark"></i> مفقود`;
+    stats.missing++;
+  }
+  updateStats();
+  return { resolved: true };
+}
+
+// ── STATS ──
+function updateStats() {
+  document.getElementById('stTotal').textContent = stats.total;
+  document.getElementById('stFound').textContent = stats.found;
+  document.getElementById('stMissing').textContent = stats.missing;
+  const cov = stats.total > 0 ? Math.round((stats.found/stats.total)*100) : 0;
+  document.getElementById('stCov').textContent = cov + '%';
+}
+function hideStats() {
+  document.getElementById('statsBar').style.display = 'none';
+  document.getElementById('toolbar').style.display = 'none';
+}
+
+// ── EXPORT ──
+function exportMissing() {
+  const missing = results.filter(item => {
+    const el = document.getElementById(`status-${item.id}`);
+    return el && el.classList.contains('status-missing');
+  });
+  if (!missing.length) { toast('✅ لا يوجد مفقودات', 'success'); return; }
+
+  const lines = missing.map(item => {
+    const t = item.title?.userPreferred || item.title?.native || 'Unknown';
+    return `${item.id}.json  |  ${t}`;
+  });
+  document.getElementById('exportPre').textContent = `=== ${missing.length} ملف مفقود ===\n\n` + lines.join('\n');
+  document.getElementById('exportBox').classList.add('show');
+  toast(`📋 ${missing.length} ملف مفقود`, 'gold');
+}
+function copyExport() { copyToClipboard(document.getElementById('exportPre').textContent); }
+
+// ── COPY & TEMPLATE ──
+function copyText(text) { copyToClipboard(text); }
+function copyTemplate(id, title) {
+  const tpl = JSON.stringify({
+    id: String(id),
+    title: title,
+    description: "",
+    episodes: [
+      { epNum: 1, title: "الحلقة الأولى", servers: [{ name: "سيرفر أساسي", quality: "1080p", url: "https://example.com/embed/1" }] }
+    ]
+  }, null, 2);
+  copyToClipboard(tpl);
+}
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => toast('✅ تم النسخ', 'success'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); toast('✅ تم النسخ', 'success'); }
+    catch(e) { toast('❌ فشل النسخ', 'error'); }
+    document.body.removeChild(ta);
+  }
+}
+
+// ── OPEN ANIME (SPA Aware) ──
+function openAnime(id) {
+  const path = `/anime?id=${btoa(String(id))}`;
+  if (typeof window.go === 'function') {
+    window.go(path);
+  } else {
+    window.open(path, '_blank');
+  }
+}
+
+// ── CLEAR & ERROR ──
+function clearAll() {
+  document.getElementById('resultsArea').innerHTML = `<div class="empty-state"><div class="icon"><i class="fa-solid fa-broom"></i></div><p>تم مسح النتائج</p></div>`;
+  hideStats();
+  document.getElementById('exportBox').classList.remove('show');
+  results = []; stats = {total:0,found:0,missing:0};
+}
+function showErr(msg) {
+  document.getElementById('resultsArea').innerHTML = `<div class="empty-state"><div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div><p>${msg}</p></div>`;
+  hideStats();
+}
+
+// ── TOAST ──
+let toastTimer;
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg; t.className = 'show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 2600);
+}
+
+// ── UTILS ──
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ── EVENTS ──
+document.getElementById('searchInput').addEventListener('keypress', e => { if(e.key==='Enter') searchName(); });
+document.getElementById('idInput').addEventListener('keypress', e => { if(e.key==='Enter') searchId(); });
+document.getElementById('devKeyInput').addEventListener('keypress', e => { if(e.key==='Enter') verifyKey(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('bulkBox').classList.remove('show');
+    document.getElementById('exportBox').classList.remove('show');
+  }
+});
+
+// ── BOOT ──
+checkAuth();
+</script>
+</body>
+</html>
